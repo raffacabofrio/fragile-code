@@ -6,7 +6,7 @@ namespace fragile
 {
     internal class Program
     {
-        static void Main(string[] args) => new BTNComparer(BTN.GetBTrees(50)).Run();
+        static void Main(string[] args) => new BTNComparer(BTN.GetBTrees(4)).Run();
     }
 
     internal class BTN
@@ -14,6 +14,12 @@ namespace fragile
         public int Val { get; set; }
         public BTN Left { get; set; }
         public BTN Right { get; set; }
+
+        public override string ToString()
+            => $"{this.Val}-L-{this.Left?.Val}-R-{this.Right?.Val}";
+
+        public static implicit operator string(BTN obj)
+            => obj.ToString();
 
         internal static IList<BTN> GetBTrees(int count = 10)
         {
@@ -66,19 +72,6 @@ namespace fragile
                     Console.WriteLine($"Is Tree {i} equal to Tree {j}? {BTreesAreEquals(trees[i], trees[j])}");
         }
 
-        bool BTreesAreEquals(BTN a, BTN b) => BTreeAsString(a) == BTreeAsString(b);
-
-        string BTreeAsString(BTN a)
-        {
-            var result = a.Val.ToString();
-
-            if (a.Left != null)
-                result = $"{result}-L-{BTreeAsString(a.Left)}";
-
-            if (a.Right != null)
-                result = $"{result}-R-{BTreeAsString(a.Right)}";
-
-            return result;
-        }
+        bool BTreesAreEquals(BTN a, BTN b) => a.ToString() == b.ToString();
     }
 }
