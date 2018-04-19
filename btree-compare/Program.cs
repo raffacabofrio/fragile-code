@@ -1,151 +1,84 @@
 ﻿using System;
+using System.Collections.Generic;
+using FizzWare.NBuilder;
 
 namespace fragile
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Running task 1 - compare bTrees.");
-            var comparer = new BTNComparer();
-            comparer.run();
-
-            Console.ReadLine();
-        }
-
+        static void Main(string[] args) => new BTNComparer(BTN.GetBTrees(50)).Run();
     }
 
-    class BTN
+    internal class BTN
     {
-        public int val;
-        public BTN left;
-        public BTN right;
+        public int Val { get; set; }
+        public BTN Left { get; set; }
+        public BTN Right { get; set; }
+
+        internal static IList<BTN> GetBTrees(int count = 10)
+        {
+            var trees = Builder<BTN>
+            .CreateListOfSize(count)
+            .Random(count / 2)
+            .With(x => x.Val, 1)
+            .And(x => x.Left, new BTN
+            {
+                Val = 2,
+                Right = new BTN { Val = 3 },
+                Left = new BTN { Val = 4 }
+            })
+            .And(x => x.Right, new BTN
+            {
+                Val = 5,
+                Right = new BTN { Val = 6 },
+                Left = new BTN { Val = 7 }
+            })
+            .Random(count / 2)
+            .With(x => x.Val, 7)
+            .And(x => x.Left, new BTN
+            {
+                Val = 6,
+                Right = new BTN { Val = 5 },
+                Left = new BTN { Val = 4 }
+            })
+            .And(x => x.Right, new BTN
+            {
+                Val = 3,
+                Right = new BTN { Val = 2 },
+                Left = new BTN { Val = 1 }
+            })
+            .Build();
+
+            return trees;
+        }
     }
 
-    class BTNComparer
+    internal class BTNComparer
     {
-        public void run()
+        private readonly IList<BTN> trees;
+
+        public BTNComparer(IList<BTN> trees) => this.trees = trees;
+
+        public void Run()
         {
-            BTN a = new BTN
-            {
-                val = 1,
-                left = new BTN
-                {
-                    val = 2
-                },
-                right = new BTN
-                {
-                    val = 3,
-                    left = new BTN
-                    {
-                        val = 4
-                    },
-                    right = new BTN
-                    {
-                        val = 5
-                    }
-                }
-            };
-
-            BTN b = new BTN
-            {
-                val = 1,
-                left = new BTN
-                {
-                    val = 2,
-                    left = new BTN
-                    {
-                        val = 4
-                    },
-                    right = new BTN
-                    {
-                        val = 5
-                    }
-                },
-                right = new BTN
-                {
-                    val = 3
-                }
-            };
-
-            BTN c = new BTN
-            {
-                val = 1,
-                left = new BTN
-                {
-                    val = 2
-                },
-                right = new BTN
-                {
-                    val = 3,
-                    left = new BTN
-                    {
-                        val = 4
-                    },
-                    right = new BTN
-                    {
-                        val = 5
-                    }
-                }
-            };
-
-            BTN d = new BTN
-            {
-                val = 1,
-                left = new BTN
-                {
-                    val = 2,
-                    left = new BTN
-                    {
-                        val = 4
-                    },
-                    right = new BTN
-                    {
-                        val = 5
-                    }
-                },
-                right = new BTN
-                {
-                    val = 3
-                }
-            };
-
-            Console.WriteLine("Is a equal to b? {0}", BTreesAreEquals(a, b));
-            Console.WriteLine("Is a equal to c? {0}", BTreesAreEquals(a, c));
-            Console.WriteLine("Is a equal to d? {0}", BTreesAreEquals(a, d));
-            Console.WriteLine("Is b equal to c? {0}", BTreesAreEquals(b, c));
-            Console.WriteLine("Is b equal to d? {0}", BTreesAreEquals(b, d));
+            for (int i = 0; i < trees.Count - 1; i++)
+                for (int j = i + 1; j < trees.Count; j++)
+                    Console.WriteLine($"Is Tree {i} equal to Tree {j}? {BTreesAreEquals(trees[i], trees[j])}");
         }
 
-        bool BTreesAreEquals(BTN a, BTN b)
-        {
-            if (BTreeAsString(a) == BTreeAsString(b))
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
+        bool BTreesAreEquals(BTN a, BTN b) => BTreeAsString(a) == BTreeAsString(b);
 
         string BTreeAsString(BTN a)
         {
-            var result = a.val.ToString();
+            var result = a.Val.ToString();
 
-            if (a.left != null)
-            {
-                result = result + "-L-" + BTreeAsString(a.left);
-            }
+            if (a.Left != null)
+                result = $"{result}-L-{BTreeAsString(a.Left)}";
 
-            if (a.right != null)
-            {
-                result = result + "-R-" + BTreeAsString(a.right);
-            }
+            if (a.Right != null)
+                result = $"{result}-R-{BTreeAsString(a.Right)}";
 
             return result;
         }
-
-    }   
-
+    }
 }
